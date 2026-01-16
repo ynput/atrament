@@ -2,8 +2,6 @@
 import Atrament, {
   MODE_DRAW, MODE_FILL, MODE_ERASE, MODE_DISABLED,
 } from '../dist/esm/index.js';
-import fill from '../dist/esm/fill.js';
-
 import { setRecorded, playRecorded } from './recording.js';
 import colorPicker from './color-picker.js';
 import log from './logger.js';
@@ -39,7 +37,6 @@ const atrament = new Atrament(canvas, {
   width: canvas.offsetWidth,
   height: canvas.offsetHeight,
   ignoreModifiers: true,
-  fill,
 });
 
 toolbarToggle.addEventListener('click', () => {

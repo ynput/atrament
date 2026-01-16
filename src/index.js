@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-unresolved
+import FillWorker from 'web-worker:./fill/worker';
 import { Mouse, Point } from './mouse.js';
 import AtramentEventTarget from './events.js';
 import { lineDistance } from './pixels.js';
@@ -39,7 +41,7 @@ export default class Atrament extends AtramentEventTarget {
   #dirty = false;
   #filling = false;
   #fillStack = [];
-  #fillWorker = null;
+  #fillWorker = new FillWorker();
   #mode = MODE_DRAW;
   #mouse = new Mouse();
   #previousPressure = DEFAULT_PRESSURE;
@@ -57,7 +59,7 @@ export default class Atrament extends AtramentEventTarget {
 
     this.canvas = Atrament.#setupCanvas(selector, config);
     this.#context = Atrament.#setupContext(this.canvas, config);
-    this.#setupFill({ FillWorker: config.fill });
+    this.#setupFill();
 
     this.#removePointerEventListeners = setupPointerEvents({
       canvas: this.canvas,
@@ -416,12 +418,7 @@ export default class Atrament extends AtramentEventTarget {
     this.endStroke(this.#mouse.x, this.#mouse.y);
   }
 
-  #setupFill({ FillWorker }) {
-    if (!FillWorker) {
-      return;
-    }
-
-    this.#fillWorker = new FillWorker();
+  #setupFill() {
     this.#fillWorker.addEventListener('message', ({ data }) => {
       if (data.type === 'fill-result') {
         this.#filling = false;
@@ -438,10 +435,6 @@ export default class Atrament extends AtramentEventTarget {
   }
 
   #fill() {
-    if (!this.#fillWorker) {
-      throw new Error('atrament: fill mode only works if the fillWorker option is passed to the Atrament constructor');
-    }
-
     const { x, y } = this.#mouse;
     this.dispatchEvent('fillstart', { x, y });
 
@@ -466,6 +459,6 @@ export default class Atrament extends AtramentEventTarget {
 
   #postToFillWorker(fillData) {
     const image = this.#context.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
-    this.#fillWorker?.postMessage({ image, ...fillData }, [image.buffer]);
+    this.#fillWorker.postMessage({ image, ...fillData }, [image.buffer]);
   }
 }

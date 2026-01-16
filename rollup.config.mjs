@@ -2,19 +2,16 @@ import terser from '@rollup/plugin-terser';
 import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 
 export default {
-  input: {
-    index: 'src/index.js',
-    fill: 'src/fill/index.js',
-  },
+  input: 'src/index.js',
   output: [
     {
-      dir: 'dist/esm',
+      file: 'dist/esm/index.js',
       plugins: [
         terser(),
       ],
     },
     {
-      dir: 'dist/cjs',
+      file: 'dist/cjs/index.js',
       format: 'cjs',
       exports: 'named',
     },
